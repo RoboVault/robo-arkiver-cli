@@ -1,7 +1,11 @@
 import { getSupabaseClient } from "../utils.ts";
 import { login } from "../login/mod.ts";
 
-export const upload = async (pkgName: string, arkiveName: string) => {
+export const upload = async (
+  pkgName: string,
+  tempPath: string,
+  arkiveName: string
+) => {
   const supabase = getSupabaseClient();
   const sessionRes = await supabase.auth.getSession();
 
@@ -32,7 +36,7 @@ export const upload = async (pkgName: string, arkiveName: string) => {
   const remotePath = `${
     userRes.data!.user.id
   }/${arkiveName}/${versionNumber}.tar.gz`;
-  const localPath = `.pkg/${pkgName}`;
+  const localPath = `${tempPath}${pkgName}`;
 
   const uploadRes = await supabase.storage
     .from("packages")

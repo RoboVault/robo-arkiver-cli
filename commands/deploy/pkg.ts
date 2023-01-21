@@ -1,13 +1,7 @@
 export const pkg = async (options: { dir: string }) => {
-  try {
-    await Deno.mkdir(".pkg");
-  } catch (error) {
-    if (!(error instanceof Deno.errors.AlreadyExists)) {
-      throw error;
-    }
-  }
+  const tempPath = await Deno.makeTempDir();
   const fileName = crypto.randomUUID() + ".tar.gz";
-  const out = ".pkg/" + fileName;
+  const out = tempPath + fileName;
 
   const process = Deno.run({
     cmd: ["tar", "--exclude=.pkg", "-zcvf", out, options.dir],
@@ -26,5 +20,5 @@ export const pkg = async (options: { dir: string }) => {
 
   process.close();
 
-  return fileName;
+  return { fileName, tempPath };
 };

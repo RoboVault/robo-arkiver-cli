@@ -8,20 +8,20 @@ export const action = async (options: { dir: string }, arkiveName: string) => {
 
   try {
     // package directory
-    const pkgName = await pkg(options);
+    const { fileName, tempPath } = await pkg(options);
 
     spinner.text = "Uploading package...";
     // upload package
-    await upload(pkgName, arkiveName);
+    await upload(fileName, tempPath, arkiveName);
 
     spinner.text = "Cleaning up...";
     // cleanup
-    await cleanup();
+    await cleanup(tempPath);
 
     spinner.succeed("Deployed successfully!");
   } catch (error) {
     spinner.fail("Deployment failed: " + error.message);
-    throw new Error(error.message);
+    console.error(error);
   }
 
   Deno.exit();
