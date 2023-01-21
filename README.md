@@ -4,16 +4,17 @@
 1. Make sure you have [deno installed](https://deno.land/manual/getting_started/installation)
 2. Run directly from URL
     ```bash
-    deno run -A https://deno.land/x/robo-arkiver-cli@v0.1.0/mod.ts --help
+    deno run -A https://deno.land/x/robo_arkiver_cli@v0.0.1/mod.ts --help
     ```
 3. Install locally
     ```bash
-    deno install -A -n robo-arkiver-cli https://deno.land/x/robo-arkiver-cli@v0.1.0/mod.ts
+    deno install -A -n arkiver https://deno.land/x/robo_arkiver_cli@v0.0.1/mod.ts
 
-    robo-arkiver-cli --help
+    arkiver --help
     ```
 
 ## Usage
 ```bash
-robo-arkiver-cli --help
+# display all commands available
+arkiver --help
 ```
