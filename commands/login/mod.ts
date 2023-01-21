@@ -30,7 +30,7 @@ export const login = async (
   },
   supabaseClient: SupabaseClient
 ) => {
-  console.log("🔒 Login to robo-arkiver");
+  console.log("🔒 Login to RoboArkiver");
 
   let { email, password } = options;
 

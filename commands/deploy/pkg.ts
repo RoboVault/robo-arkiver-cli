@@ -1,5 +1,11 @@
 export const pkg = async (options: { dir: string }) => {
-  await Deno.mkdir(".pkg");
+  try {
+    await Deno.mkdir(".pkg");
+  } catch (error) {
+    if (!(error instanceof Deno.errors.AlreadyExists)) {
+      throw error;
+    }
+  }
   const fileName = crypto.randomUUID() + ".tar.gz";
   const out = ".pkg/" + fileName;
 

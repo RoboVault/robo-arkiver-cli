@@ -3,7 +3,7 @@ import { cleanup } from "./cleanup.ts";
 import { pkg } from "./pkg.ts";
 import { upload } from "./upload.ts";
 
-export const action = async (options: { dir: string }) => {
+export const action = async (options: { dir: string }, arkiveName: string) => {
   const spinner = wait("Packaging...").start();
 
   try {
@@ -12,7 +12,7 @@ export const action = async (options: { dir: string }) => {
 
     spinner.text = "Uploading package...";
     // upload package
-    await upload(pkgName);
+    await upload(pkgName, arkiveName);
 
     spinner.text = "Cleaning up...";
     // cleanup
@@ -20,8 +20,8 @@ export const action = async (options: { dir: string }) => {
 
     spinner.succeed("Deployed successfully!");
   } catch (error) {
-    spinner.fail("Deployment failed");
-    throw error;
+    spinner.fail("Deployment failed: " + error.message);
+    throw new Error(error.message);
   }
 
   Deno.exit();

@@ -11,7 +11,7 @@ export const action = async (options: {
   email?: string;
   password?: string;
 }) => {
-  console.log("Signup to robo-arkiver 🔒");
+  console.log("Signup to RoboArkiver 🔒");
 
   let { email, password } = options;
 
