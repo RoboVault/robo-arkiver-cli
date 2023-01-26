@@ -23,7 +23,7 @@ export const upload = async (
     .from("arkive")
     .select("id", { count: "exact" })
     .eq("name", arkiveName)
-    .eq("owner_id", userRes.data!.user.id);
+    .eq("user_id", userRes.data!.user.id);
   if (arkivesRes.error) {
     throw arkivesRes.error;
   }
@@ -52,7 +52,7 @@ export const upload = async (
   const saveRes = await supabase.from("arkive").insert({
     version_number: versionNumber,
     name: arkiveName,
-    owner_id: userRes.data!.user.id,
+    user_id: userRes.data!.user.id,
   });
 
   if (saveRes.error) {

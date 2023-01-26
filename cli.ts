@@ -1,5 +1,5 @@
 import { Command } from "./deps.ts";
-import { deploy, login, signup, logout } from "./commands/mod.ts";
+import { deploy, login, signup, logout, remove } from "./commands/mod.ts";
 
 if (import.meta.main) {
   const command = new Command()
@@ -32,6 +32,12 @@ if (import.meta.main) {
     })
     .arguments("<arkiveName:string>")
     .action(deploy.action);
+
+  // delete
+  command
+    .command("delete", "Delete arkive")
+    .arguments("<arkiveName:string>")
+    .action(async (_, arkiveName) => await remove.action(arkiveName));
 
   await command.parse(Deno.args);
 }
