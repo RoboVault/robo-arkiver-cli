@@ -1,8 +1,9 @@
+import { SUPABASE_FUNCTIONS_URL } from "../../constants.ts";
 import { wait } from "../../deps.ts";
 import { login } from "../login/mod.ts";
 import { getSupabaseClient } from "../utils.ts";
 
-export const action = async (arkiveName: string) => {
+export const action = async (id: number) => {
   const spinner = wait("Deleting...").start();
 
   try {
@@ -19,36 +20,26 @@ export const action = async (arkiveName: string) => {
       throw userRes.error;
     }
 
-    const deleteRes = await supabase
-      .from("arkive")
-      .delete()
-      .eq("user_id", userRes.data.user.id)
-      .eq("name", arkiveName);
-
-    if (deleteRes.error) {
-      throw deleteRes.error;
+    if (!sessionRes.data.session) {
+      throw new Error("Not logged in");
     }
 
-    const getPackageRes = await supabase.storage
-      .from("packages")
-      .list(`${userRes.data.user.id}/${arkiveName}`);
+    const headers = new Headers();
+    headers.append(
+      "Authorization",
+      `Bearer ${sessionRes.data.session.access_token}`,
+    );
 
-    console.log(getPackageRes.data);
+    const deleteRes = await fetch(
+      new URL(`/arkives/${id}`, SUPABASE_FUNCTIONS_URL),
+      {
+        method: "DELETE",
+        headers,
+      },
+    );
 
-    if (getPackageRes.error) {
-      throw getPackageRes.error;
-    }
-
-    const deletePackagesRes = await supabase.storage
-      .from("packages")
-      .remove(
-        getPackageRes.data.map(
-          (pkg) => `${userRes.data.user.id}/${arkiveName}/${pkg.name}`
-        )
-      );
-
-    if (deletePackagesRes.error) {
-      throw deletePackagesRes.error;
+    if (!deleteRes.ok) {
+      throw new Error(await deleteRes.text());
     }
 
     spinner.succeed("Deleted successfully!");

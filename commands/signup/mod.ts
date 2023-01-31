@@ -10,10 +10,11 @@ import {
 export const action = async (options: {
   email?: string;
   password?: string;
+  username?: string;
 }) => {
   console.log("Signup to RoboArkiver 🔒");
 
-  let { email, password } = options;
+  let { email, password, username } = options;
 
   if (!email) {
     email = await getEmail();
@@ -38,6 +39,6 @@ export const action = async (options: {
   }
 
   spinner.succeed(
-    "Signed up successfully! Please check your email for a confirmation link."
+    "Signed up successfully! Please check your email for a confirmation link.",
   );
 };

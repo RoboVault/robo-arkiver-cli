@@ -1,5 +1,5 @@
 import { Command } from "./deps.ts";
-import { deploy, login, signup, logout, remove } from "./commands/mod.ts";
+import { deploy, login, logout, remove, signup } from "./commands/mod.ts";
 
 if (import.meta.main) {
   const command = new Command()
@@ -19,6 +19,7 @@ if (import.meta.main) {
     .command("signup", "Signup to RoboArkiver")
     .option("-e, --email <email:string>", "Email address")
     .option("-p, --password <password:string>", "Password")
+    .option("-u, --username <username:string>", "Username")
     .action(signup.action);
 
   // signout
@@ -27,17 +28,16 @@ if (import.meta.main) {
   // deploy
   command
     .command("deploy", "Deploy arkive")
-    .option("-d, --dir <dir:string>", "Root directory of arkive", {
-      default: ".",
-    })
-    .arguments("<arkiveName:string>")
+    .option("--public", "Make arkive public")
+    .option("--major", "Deploy as major version")
+    .arguments("<dir:string> <arkiveName:string>")
     .action(deploy.action);
 
   // delete
   command
     .command("delete", "Delete arkive")
-    .arguments("<arkiveName:string>")
-    .action(async (_, arkiveName) => await remove.action(arkiveName));
+    .arguments("<id:number>")
+    .action(async (_, id) => await remove.action(id));
 
   await command.parse(Deno.args);
 }

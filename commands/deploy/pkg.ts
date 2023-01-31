@@ -1,19 +1,22 @@
-export const pkg = async (options: { dir: string }) => {
+import { join } from "https://deno.land/std@0.175.0/path/mod.ts";
+
+export const pkg = async (dir: string) => {
   const tempPath = await Deno.makeTempDir();
   const fileName = crypto.randomUUID() + ".tar.gz";
-  const out = tempPath + fileName;
+  const out = join(tempPath, fileName);
 
   const process = Deno.run({
-    cmd: ["tar", "--exclude=.pkg", "-zcvf", out, options.dir],
+    cmd: ["tar", "-zcvf", out, dir],
     stdout: "piped",
     stderr: "piped",
   });
 
-  const [{ code }, err] = await Promise.all([
+  const [status, err] = await Promise.all([
     process.status(),
     process.stderrOutput(),
   ]);
-  if (code !== 0) {
+  console.log(status);
+  if (status.code !== 0) {
     const errMsg = `Failed to build package: ${new TextDecoder().decode(err)}`;
     throw new Error(errMsg);
   }

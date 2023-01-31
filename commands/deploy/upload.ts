@@ -1,10 +1,12 @@
 import { getSupabaseClient } from "../utils.ts";
 import { login } from "../login/mod.ts";
+import { SUPABASE_FUNCTIONS_URL } from "../../constants.ts";
 
 export const upload = async (
   pkgName: string,
   tempPath: string,
-  arkiveName: string
+  arkiveName: string,
+  options: { public?: true; major?: true },
 ) => {
   const supabase = getSupabaseClient();
   const sessionRes = await supabase.auth.getSession();
@@ -13,49 +15,38 @@ export const upload = async (
     await login({}, supabase);
   }
 
-  const userRes = await supabase.auth.getUser();
-  if (userRes.error) {
-    throw userRes.error;
+  if (!sessionRes.data.session) {
+    throw new Error("Not logged in");
   }
 
-  let versionNumber;
-  const arkivesRes = await supabase
-    .from("arkive")
-    .select("id", { count: "exact" })
-    .eq("name", arkiveName)
-    .eq("user_id", userRes.data!.user.id);
-  if (arkivesRes.error) {
-    throw arkivesRes.error;
+  const formData = new FormData();
+  formData.append("name", arkiveName);
+  const filePath = new URL(`file://${tempPath}/${pkgName}`);
+  formData.append(
+    "pkg",
+    new File([await Deno.readFile(filePath)], pkgName),
+  );
+  if (options.public) {
+    formData.append("isPublic", "on");
   }
-  if (!arkivesRes.count) {
-    versionNumber = 1;
+  if (options.major) {
+    formData.append("update", "major");
   } else {
-    versionNumber = arkivesRes.count + 1;
+    formData.append("update", "minor");
   }
 
-  const remotePath = `${
-    userRes.data!.user.id
-  }/${arkiveName}/${versionNumber}.tar.gz`;
-  const localPath = `${tempPath}${pkgName}`;
-
-  const uploadRes = await supabase.storage
-    .from("packages")
-    .upload(remotePath, Deno.readFileSync(localPath), {
-      contentType: "application/gzip",
-      upsert: true,
-    });
-
-  if (uploadRes.error) {
-    throw uploadRes.error;
-  }
-
-  const saveRes = await supabase.from("arkive").insert({
-    version_number: versionNumber,
-    name: arkiveName,
-    user_id: userRes.data!.user.id,
-  });
-
-  if (saveRes.error) {
-    throw saveRes.error;
-  }
+  const headers = new Headers();
+  headers.append(
+    "Authorization",
+    `Bearer ${sessionRes.data.session.access_token}`,
+  );
+  const res = await fetch(
+    new URL("/arkives", SUPABASE_FUNCTIONS_URL),
+    {
+      method: "POST",
+      body: formData,
+      headers,
+    },
+  );
+  console.log("Deployed successfully: ", await res.json());
 };
