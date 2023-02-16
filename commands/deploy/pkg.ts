@@ -6,7 +6,7 @@ export const pkg = async (dir: string) => {
   const out = join(tempPath, fileName);
 
   const process = Deno.run({
-    cmd: ["tar", "-zcvf", out, dir],
+    cmd: ["tar", "-zcvf", out, "-C", dir, "."],
     stdout: "piped",
     stderr: "piped",
   });
